@@ -3,6 +3,8 @@ from django.db import models
 from django.core.validators import RegexValidator
 
 class CustomUser(AbstractUser):
+    email_verified = models.BooleanField(default=False)
+    verification_code = models.CharField(max_length=6, blank=True, null=True)  # Use CharField for 6-digit code
     username_validator = RegexValidator(
         regex=r'^[a-zA-Z0-9@.+-_ ]+$',  # Allow spaces in addition to default characters
         message="Username can only contain letters, numbers, spaces, and @/./+/-/_ characters."
@@ -20,5 +22,4 @@ class CustomUser(AbstractUser):
     city = models.CharField(max_length=100, blank=True, null=True)
     country = models.CharField(max_length=100, blank=True, null=True)
     zip_code = models.CharField(max_length=10, blank=True, null=True)
-    phone = models.CharField(max_length=15, blank=True, null=True)  # Add this line
-    address = models.TextField(blank=True, null=True)
+    phone = models.CharField(max_length=15, blank=True, null=True)

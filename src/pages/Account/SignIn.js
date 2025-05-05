@@ -1,53 +1,43 @@
 import React, { useState } from "react";
 import { BsCheckCircleFill } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { logoLight } from "../../assets/images";
 import axios from "axios";
 
 const SignIn = () => {
-  // ============= Initial State Start here =============
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // ============= Initial State End here ===============
-  // ============= Error Msg Start here =================
   const [errEmail, setErrEmail] = useState("");
   const [errPassword, setErrPassword] = useState("");
-
-  // ============= Error Msg End here ===================
   const [successMsg, setSuccessMsg] = useState("");
-  // ============= Event Handler Start here =============
-  const handleEmail = (e) => {
-    setEmail(e.target.value);
-    setErrEmail("");
-  };
-  const handlePassword = (e) => {
-    setPassword(e.target.value);
-    setErrPassword("");
-  };
-  // ============= Event Handler End here ===============
+  const navigate = useNavigate();
+
   const handleSignIn = async (e) => {
     e.preventDefault();
-  
-    if (!email) setErrEmail("Enter your email");
+
+    if (!email) setErrEmail("Enter your username or email");
     if (!password) setErrPassword("Enter your password");
-  
+
     if (email && password) {
       try {
         const response = await axios.post(
           "http://127.0.0.1:8000/api/accounts/login/",
-          { username: email, password }
+          { username: email, password } // Use 'username' for both email or username
         );
         const { token, user } = response.data;
         setSuccessMsg(`Welcome back, ${user.username}!`);
-        localStorage.setItem("token", token); // Save token for authenticated requests
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
         setEmail("");
         setPassword("");
+        navigate("/");
       } catch (error) {
-        console.error("Error during login:", error);
-        setErrEmail("Invalid email or password");
+        console.error("Error during login:", error.response?.data || error.message);
+        setErrEmail("Invalid username/email or password");
       }
     }
   };
+
   return (
     <div className="w-full h-screen flex items-center justify-center">
       <div className="w-1/2 hidden lgl:inline-flex h-full text-white">
@@ -57,7 +47,7 @@ const SignIn = () => {
           </Link>
           <div className="flex flex-col gap-1 -mt-1">
             <h1 className="font-titleFont text-xl font-medium">
-              Stay sign in for more
+              Stay signed in for more
             </h1>
             <p className="text-base">When you sign in, you are with us!</p>
           </div>
@@ -134,23 +124,26 @@ const SignIn = () => {
             </Link>
           </div>
         ) : (
-          <form className="w-full lgl:w-[450px] h-screen flex items-center justify-center">
+          <form
+            onSubmit={handleSignIn}
+            className="w-full lgl:w-[450px] h-screen flex items-center justify-center"
+          >
             <div className="px-6 py-4 w-full h-[90%] flex flex-col justify-center overflow-y-scroll scrollbar-thin scrollbar-thumb-primeColor">
               <h1 className="font-titleFont underline underline-offset-4 decoration-[1px] font-semibold text-3xl mdl:text-4xl mb-4">
                 Sign in
               </h1>
               <div className="flex flex-col gap-3">
-                {/* Email */}
+                {/* Email or Username */}
                 <div className="flex flex-col gap-.5">
                   <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Work Email
+                    Username or Email
                   </p>
                   <input
-                    onChange={handleEmail}
+                    onChange={(e) => setEmail(e.target.value)}
                     value={email}
                     className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="email"
-                    placeholder="john@workemail.com"
+                    type="text"
+                    placeholder="Enter your username or email"
                   />
                   {errEmail && (
                     <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
@@ -166,11 +159,11 @@ const SignIn = () => {
                     Password
                   </p>
                   <input
-                    onChange={handlePassword}
+                    onChange={(e) => setPassword(e.target.value)}
                     value={password}
                     className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
                     type="password"
-                    placeholder="Create password"
+                    placeholder="Enter your password"
                   />
                   {errPassword && (
                     <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
@@ -181,11 +174,11 @@ const SignIn = () => {
                 </div>
 
                 <button
-  onClick={handleSignIn}
-  className="bg-primeColor hover:bg-black text-gray-200 hover:text-white cursor-pointer w-full text-base font-medium h-10 rounded-md duration-300"
->
-  Sign In
-</button>
+                  type="submit"
+                  className="bg-primeColor hover:bg-black text-gray-200 hover:text-white cursor-pointer w-full text-base font-medium h-10 rounded-md duration-300"
+                >
+                  Sign In
+                </button>
                 <p className="text-sm text-center font-titleFont font-medium">
                   Don't have an Account?{" "}
                   <Link to="/signup">

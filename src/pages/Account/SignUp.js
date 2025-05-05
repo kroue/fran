@@ -1,141 +1,34 @@
 import React, { useState } from "react";
-import axios from "axios"; // Import axios for API calls
+import axios from "axios";
 import { BsCheckCircleFill } from "react-icons/bs";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { logoLight } from "../../assets/images";
 
 const SignUp = () => {
-  // ============= Initial State Start here =============
   const [clientName, setClientName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [address, setAddress] = useState("");
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("");
-  const [zip, setZip] = useState("");
-  const [role, setRole] = useState("Customer"); // Add state for role
-  const [checked, setChecked] = useState(false);
-  // ============= Initial State End here ===============
-  // ============= Error Msg Start here =================
-  const [errClientName, setErrClientName] = useState("");
-  const [errEmail, setErrEmail] = useState("");
-  const [errPhone, setErrPhone] = useState("");
-  const [errPassword, setErrPassword] = useState("");
-  const [errAddress, setErrAddress] = useState("");
-  const [errCity, setErrCity] = useState("");
-  const [errCountry, setErrCountry] = useState("");
-  const [errZip, setErrZip] = useState("");
-  const [errRole, setErrRole] = useState(""); // Add error state for role
-  // ============= Error Msg End here ===================
+  const [zip_code, setZip] = useState("");
+  const [checked, setChecked] = useState(false); // State for checkbox
   const [successMsg, setSuccessMsg] = useState("");
-  // ============= Event Handler Start here =============
-  const handleName = (e) => {
-    setClientName(e.target.value);
-    setErrClientName("");
-  };
-  const handleEmail = (e) => {
-    setEmail(e.target.value);
-    setErrEmail("");
-  };
-  const handlePhone = (e) => {
-    setPhone(e.target.value);
-    setErrPhone("");
-  };
-  const handlePassword = (e) => {
-    setPassword(e.target.value);
-    setErrPassword("");
-  };
-  const handleAddress = (e) => {
-    setAddress(e.target.value);
-    setErrAddress("");
-  };
-  const handleCity = (e) => {
-    setCity(e.target.value);
-    setErrCity("");
-  };
-  const handleCountry = (e) => {
-    setCountry(e.target.value);
-    setErrCountry("");
-  };
-  const handleZip = (e) => {
-    setZip(e.target.value);
-    setErrZip("");
-  };
-  const handleRole = (e) => {
-    setRole(e.target.value);
-    setErrRole("");
-  };
-  // ============= Event Handler End here ===============
-  // ================= Email Validation start here =============
-  const EmailValidation = (email) => {
-    return String(email)
-      .toLowerCase()
-      .match(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}₱/i);
-  };
-  // ================= Email Validation End here ===============
+  const navigate = useNavigate();
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     if (checked) {
-      if (!clientName) {
-        setErrClientName("Enter your name");
-        return;
-      }
-      const usernameRegex = /^[a-zA-Z0-9@.+-_]+$/;
-      if (!usernameRegex.test(clientName)) {
-        setErrClientName(
-          "Username can only contain letters, numbers, and @/./+/-/_ characters."
-        );
-        return;
-      }
-      if (!email) setErrEmail("Enter your email");
-      if (!password) setErrPassword("Create a password");
-      if (!address) setErrAddress("Enter your address");
-      if (!city) setErrCity("Enter your city name");
-      if (!country) setErrCountry("Enter your country");
-      if (!zip) setErrZip("Enter your zip code");
-  
-      if (
-        clientName &&
-        email &&
-        password &&
-        address &&
-        city &&
-        country &&
-        zip
-      ) {
-        const payload = {
-          username: clientName,
-          email,
-          password,
-          address,
-          city,
-          country,
-          zip_code: zip,
-        };
-        console.log("Payload:", payload); // Debugging: Log the payload
-        try {
-          const response = await axios.post(
-            "http://127.0.0.1:8000/api/accounts/register/",
-            payload
-          );
-          setSuccessMsg("Registration successful! Please log in.");
-          setClientName("");
-          setEmail("");
-          setPassword("");
-          setAddress("");
-          setCity("");
-          setCountry("");
-          setZip("");
-        } catch (error) {
-          console.error("Error during registration:", error.response.data);
-          setSuccessMsg("Registration failed. Please try again.");
-        }
+      const payload = { username: clientName, email, password, address, city, country, zip_code };
+      try {
+        await axios.post("http://127.0.0.1:8000/api/accounts/register/", payload);
+        setSuccessMsg("Registration successful! Check your email for the verification code.");
+        navigate("/verify-email", { state: { email } }); // Pass the email to the verification page
+      } catch (error) {
+        console.error("Error during registration:", error.response?.data || error.message);
       }
     }
   };
-
   return (
     <div className="w-full h-screen flex items-center justify-start">
       <div className="w-1/2 hidden lgl:inline-flex h-full text-white">
@@ -226,203 +119,80 @@ const SignUp = () => {
                 Create your account
               </h1>
               <div className="flex flex-col gap-3">
-                {/* client name */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Full Name
-                  </p>
+                {/* Form fields */}
+                <input
+                  type="text"
+                  placeholder="Username"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="City"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="Country"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+                <input
+                  type="text"
+                  placeholder="ZIP Code"
+                  value={zip_code}
+                  onChange={(e) => setZip(e.target.value)}
+                  className="w-full mb-4 p-2 border rounded"
+                />
+                <div className="flex items-center gap-2 mb-4">
                   <input
-                    onChange={handleName}
-                    value={clientName}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="eg. John Doe"
-                  />
-                  {errClientName && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errClientName}
-                    </p>
-                  )}
-                </div>
-                {/* Email */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Work Email
-                  </p>
-                  <input
-                    onChange={handleEmail}
-                    value={email}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="email"
-                    placeholder="john@workemail.com"
-                  />
-                  {errEmail && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errEmail}
-                    </p>
-                  )}
-                </div>
-                {/* Phone Number */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Phone Number
-                  </p>
-                  <input
-                    onChange={handlePhone}
-                    value={phone}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="008801234567891"
-                  />
-                  {errPhone && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errPhone}
-                    </p>
-                  )}
-                </div>
-                {/* Password */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Password
-                  </p>
-                  <input
-                    onChange={handlePassword}
-                    value={password}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="password"
-                    placeholder="Create password"
-                  />
-                  {errPassword && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errPassword}
-                    </p>
-                  )}
-                </div>
-                {/* Address */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Address
-                  </p>
-                  <input
-                    onChange={handleAddress}
-                    value={address}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="road-001, house-115, example area"
-                  />
-                  {errAddress && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errAddress}
-                    </p>
-                  )}
-                </div>
-                {/* City */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    City
-                  </p>
-                  <input
-                    onChange={handleCity}
-                    value={city}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="Your city"
-                  />
-                  {errCity && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errCity}
-                    </p>
-                  )}
-                </div>
-                {/* Country */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Country
-                  </p>
-                  <input
-                    onChange={handleCountry}
-                    value={country}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="Your country"
-                  />
-                  {errCountry && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errCountry}
-                    </p>
-                  )}
-                </div>
-                {/* Zip code */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Zip/Postal code
-                  </p>
-                  <input
-                    onChange={handleZip}
-                    value={zip}
-                    className="w-full h-8 placeholder:text-sm placeholder:tracking-wide px-4 text-base font-medium placeholder:font-normal rounded-md border-[1px] border-gray-400 outline-none"
-                    type="text"
-                    placeholder="Your country"
-                  />
-                  {errZip && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errZip}
-                    </p>
-                  )}
-                </div>
-                {/* Role Dropdown */}
-                <div className="flex flex-col gap-.5">
-                  <p className="font-titleFont text-base font-semibold text-gray-600">
-                    Role
-                  </p>
-                  <select
-                    onChange={handleRole}
-                    value={role}
-                    className="w-full h-8 px-4 text-base font-medium rounded-md border-[1px] border-gray-400 outline-none"
-                  >
-                    <option value="Customer">Customer</option>
-                    <option value="Admin">Admin</option>
-                  </select>
-                  {errRole && (
-                    <p className="text-sm text-red-500 font-titleFont font-semibold px-4">
-                      <span className="font-bold italic mr-1">!</span>
-                      {errRole}
-                    </p>
-                  )}
-                </div>
-                {/* Checkbox */}
-                <div className="flex items-start mdl:items-center gap-2">
-                  <input
-                    onChange={() => setChecked(!checked)}
-                    className="w-4 h-4 mt-1 mdl:mt-0 cursor-pointer"
                     type="checkbox"
+                    id="terms"
+                    checked={checked}
+                    onChange={(e) => setChecked(e.target.checked)}
                   />
-                  <p className="text-sm text-primeColor">
-                    I agree to the FRAN{" "}
-                    <span className="text-blue-500">Terms of Service </span>and{" "}
-                    <span className="text-blue-500">Privacy Policy</span>.
-                  </p>
+                  <label htmlFor="terms" className="text-sm">
+                    I agree to the terms and conditions
+                  </label>
                 </div>
                 <button
                   onClick={handleSignUp}
-                  className={`₱{
+                  className={`${
                     checked
                       ? "bg-primeColor hover:bg-black hover:text-white cursor-pointer"
-                      : "bg-gray-500 hover:bg-gray-500 hover:text-gray-200 cursor-none"
+                      : "bg-gray-500 hover:bg-gray-500 hover:text-gray-200 cursor-not-allowed"
                   } w-full text-gray-200 text-base font-medium h-10 rounded-md hover:text-white duration-300`}
+                  disabled={!checked}
                 >
                   Create Account
                 </button>
                 <p className="text-sm text-center font-titleFont font-medium">
-                  Don't have an Account?{" "}
+                  Already have an Account?{" "}
                   <Link to="/signin">
                     <span className="hover:text-blue-600 duration-300">
                       Sign in
