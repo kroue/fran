@@ -26,6 +26,10 @@ const Home = () => {
     navigate("/signin"); // Redirect to the sign-in page
   };
 
+  const handleAdminRedirect = () => {
+    navigate("/admin"); // Redirect to the admin page
+  };
+
   return (
     <div className="w-full mx-auto">
       {user && (
@@ -36,6 +40,12 @@ const Home = () => {
             className="mt-4 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
           >
             Logout
+          </button>
+          <button
+            onClick={handleAdminRedirect}
+            className="mt-4 ml-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Admin Panel
           </button>
         </div>
       )}

@@ -25,6 +25,8 @@ import Shop from "./pages/Shop/Shop";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import VerifyEmail from "./pages/Account/Verification";
+import Admin from "./pages/Home/Admin";
+import AddProduct from "./pages/Home/AddProduct";
 
 const Layout = () => {
   return (
@@ -55,6 +57,8 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <Route>
       <Route path="/" element={<Layout />}>
+      < Route path="/admin" element={<Admin />}></Route>
+      <Route path="admin/add-product" element={<AddProduct />}></Route>
         {/* ==================== Header Navlink Start here =================== */}
         <Route index element={<Home />}></Route>
         <Route path="/shop" element={<Shop />}></Route>
